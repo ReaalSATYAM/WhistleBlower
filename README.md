@@ -1,6 +1,5 @@
 # WhistleBlower 🚨
 
-
 A decentralized platform for securely submitting and reviewing complaints or reports of misconduct, combining **AI, blockchain, and modern web technologies**.
 
 
@@ -9,6 +8,26 @@ A decentralized platform for securely submitting and reviewing complaints or rep
 **WhistleBlower** allows users to submit reports with multimedia evidence, which are then verified using AI models. All submissions are stored on a **tamper-proof blockchain**, ensuring transparency and integrity. Admins can review, verify, and manage reports efficiently through a dynamic dashboard.
 
 **Theme Selected:** Government + Blockchain + AI
+
+## Live Demo
+
+🔗 **Frontend Demo:**  
+https://reaalsatyam.github.io/WhistleBlower/
+
+The live demo showcases:
+- Whistleblower report submission flow
+- Admin login and dashboard UI
+- Application routing and overall user experience
+---
+
+##  Demo Limitations
+
+- GitHub Pages supports **frontend-only (static) hosting**
+- Backend services, AI model inference, and blockchain interactions are **not active** in the live demo
+- Evidence upload UI is visible, but actual AI analysis and blockchain logging run **locally**
+- Full implementation details are documented in **folder-wise READMEs** (`backend`, `evidence_service`, `blockchain`, `frontend`)
+
+> All core features are fully implemented and reproducible locally.
 
 
 ## Features Implemented (Round 1)
@@ -79,8 +98,6 @@ A decentralized platform for securely submitting and reviewing complaints or rep
    - Admins review reports, process evidence with AI, and update status.
 5. **User Notification**
    - Users can track report status and view AI verdicts.
-
-
 
 ## Getting Started
 
