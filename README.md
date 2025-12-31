@@ -125,6 +125,25 @@ The live demo showcases:
 
 > All core features are fully implemented and reproducible locally.
 
+## Step-By-Step Procedure
+
+### 1. Enter the Evidence
+   - **Action**: User uploads evidence (image, video, audio).
+   - ![Evidence Upload](front.png)
+
+### 2. Admin Login
+   - **Action**: Admin logs into the dashboard to review evidence.
+   - ![Admin Login](adminLogin.png)
+
+### 3. Process the Evidence Using AI Models and Accept/Reject it.
+   - **Action**: Admin uses AI to analyze the evidence for authenticity and accepts or rejects the evidence after reviewing the AI results.
+   - ![AI Processing](deepfakeCheck.png)
+
+### 4. Check the Status
+   - **Action**: User or admin checks the status of the report.
+   - ![Report Status](status.png)
+
+
 # Vision & Purpose
 
 ### Our Vision
