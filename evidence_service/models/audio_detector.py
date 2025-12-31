@@ -5,58 +5,58 @@ import librosa
 from pydub import AudioSegment
 from transformers import AutoFeatureExtractor, AutoModelForAudioClassification
 
-# Load model ONCE
-MODEL_ID = "DavidCombei/wav2vec2-xls-r-300m-deepfake-V1"
+# Initialize audio analysis model
+AUDIO_MODEL_ID = "DavidCombei/wav2vec2-xls-r-300m-deepfake-V1"
 
-feature_extractor = AutoFeatureExtractor.from_pretrained(MODEL_ID)
-model = AutoModelForAudioClassification.from_pretrained(MODEL_ID)
-model.eval()
+audio_extractor = AutoFeatureExtractor.from_pretrained(AUDIO_MODEL_ID)
+audio_model = AutoModelForAudioClassification.from_pretrained(AUDIO_MODEL_ID)
+audio_model.eval()
 
-def detect_audio(audio_path):
-    temp_wav = f"temp_{uuid.uuid4().hex}.wav"
+def assess_audio(audio_location):
+    temporary_file = f"temp_{uuid.uuid4().hex}.wav"
 
     try:
-        audio = AudioSegment.from_file(audio_path)
-        audio = audio.set_channels(1).set_frame_rate(16000)
-        audio.export(temp_wav, format="wav")
+        sound_clip = AudioSegment.from_file(audio_location)
+        sound_clip = sound_clip.set_channels(1).set_frame_rate(16000)
+        sound_clip.export(temporary_file, format="wav")
 
-        audio_input, _ = librosa.load(temp_wav, sr=16000)
+        audio_waveform, _ = librosa.load(temporary_file, sr=16000)
 
-        inputs = feature_extractor(
-            audio_input,
+        model_inputs = audio_extractor(
+            audio_waveform,
             sampling_rate=16000,
             return_tensors="pt"
         )
 
         with torch.no_grad():
-            logits = model(**inputs).logits
-            probs = torch.softmax(logits, dim=-1)[0]
+            model_outputs = audio_model(**model_inputs).logits
+            prediction_probabilities = torch.softmax(model_outputs, dim=-1)[0]
 
-        pred_id = torch.argmax(probs).item()
-        raw_label = model.config.id2label[pred_id]
-        confidence = round(probs[pred_id].item(), 4)
+        predicted_index = torch.argmax(prediction_probabilities).item()
+        predicted_category = audio_model.config.id2label[predicted_index]
+        prediction_confidence = round(prediction_probabilities[predicted_index].item(), 4)
 
-        # ✅ FINAL CORRECT LOGIC
-        if raw_label == "label_0":
-            final_verdict = "FAKE"
+        # Determine authenticity
+        if predicted_category == "label_0":
+            authenticity_verdict = "SYNTHETIC"
         else:
-            final_verdict = "REAL"
+            authenticity_verdict = "NATURAL"
 
         return {
-            "final_verdict": final_verdict,
-            "confidence": confidence,
-            "label": raw_label
+            "final_verdict": authenticity_verdict,
+            "confidence": prediction_confidence,
+            "label": predicted_category
         }
 
-    except Exception as e:
-        print("🔥 Audio detection error:", e)
+    except Exception as analysis_error:
+        print("Audio analysis failed:", analysis_error)
         return {
-            "final_verdict": "ERROR",
+            "final_verdict": "ANALYSIS_FAILED",
             "confidence": 0,
-            "error": str(e)
+            "error": str(analysis_error)
         }
 
     finally:
-        if os.path.exists(temp_wav):
-            os.remove(temp_wav)
+        if os.path.exists(temporary_file):
+            os.remove(temporary_file)
 

@@ -6,93 +6,87 @@ from transformers import (
     pipeline
 )
 
-# -------------------------------
-# Load CLIP
-# -------------------------------
-clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-clip_model.eval()
+# Initialize CLIP components
+vision_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+vision_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+vision_model.eval()
 
-CLIP_TEXTS = [
-    "a real photograph",
-    "a fake image",
-    "an AI generated image",
-    "a deepfake image"
+VISION_PROMPTS = [
+    "an authentic photo",
+    "a manipulated picture",
+    "a computer-generated picture",
+    "a synthetic image"
 ]
 
-# -------------------------------
-# Load CNN Deepfake Detector
-# -------------------------------
-cnn_detector = pipeline(
+# Initialize deepfake detection model
+deepfake_classifier = pipeline(
     "image-classification",
     model="prithivMLmods/deepfake-detector-model-v1"
 )
 
-# -------------------------------
-# Image Detection Function
-# -------------------------------
-def detect_image(image_path, clip_threshold=0.65, cnn_threshold=0.6):
-    image = Image.open(image_path).convert("RGB")
+# Function to evaluate image authenticity
+def evaluate_image(image_location, vision_cutoff=0.65, classifier_cutoff=0.6):
+    picture = Image.open(image_location).convert("RGB")
 
-    # ===== CLIP INFERENCE =====
-    clip_inputs = clip_processor(
-        text=CLIP_TEXTS,
-        images=image,
+    # Perform vision-based analysis
+    vision_data = vision_processor(
+        text=VISION_PROMPTS,
+        images=picture,
         return_tensors="pt",
         padding=True
     )
 
     with torch.no_grad():
-        clip_outputs = clip_model(**clip_inputs)
-        clip_probs = clip_outputs.logits_per_image.softmax(dim=1)[0]
+        vision_results = vision_model(**vision_data)
+        vision_probabilities = vision_results.logits_per_image.softmax(dim=1)[0]
 
-    clip_real = clip_probs[0].item()
-    clip_fake = max(
-        clip_probs[1].item(),
-        clip_probs[2].item(),
-        clip_probs[3].item()
+    authentic_probability = vision_probabilities[0].item()
+    manipulated_probability = max(
+        vision_probabilities[1].item(),
+        vision_probabilities[2].item(),
+        vision_probabilities[3].item()
     )
 
-    clip_verdict = "FAKE" if clip_fake > clip_threshold else "REAL_OR_UNCERTAIN"
+    vision_judgment = "MANIPULATED" if manipulated_probability > vision_cutoff else "AUTHENTIC_OR_INDETERMINATE"
 
-    # ===== CNN INFERENCE =====
-    cnn_preds = cnn_detector(image)
+    # Perform classifier-based analysis
+    classifier_predictions = deepfake_classifier(picture)
 
-    cnn_label = cnn_preds[0]["label"].lower()
-    cnn_score = cnn_preds[0]["score"]
+    classifier_category = classifier_predictions[0]["label"].lower()
+    classifier_confidence = classifier_predictions[0]["score"]
 
-    cnn_verdict = "FAKE" if "fake" in cnn_label and cnn_score > cnn_threshold else "REAL"
+    classifier_judgment = "MANIPULATED" if "fake" in classifier_category and classifier_confidence > classifier_cutoff else "AUTHENTIC"
 
-    # ===== FUSION LOGIC =====
-    if clip_verdict == "FAKE" and cnn_verdict == "FAKE":
-        final_verdict = "FAKE"
-        confidence = max(clip_fake, cnn_score)
+    # Combine results
+    if vision_judgment == "MANIPULATED" and classifier_judgment == "MANIPULATED":
+        overall_judgment = "MANIPULATED"
+        overall_confidence = max(manipulated_probability, classifier_confidence)
 
-    elif cnn_verdict == "FAKE":
-        final_verdict = "FAKE"
-        confidence = cnn_score
+    elif classifier_judgment == "MANIPULATED":
+        overall_judgment = "MANIPULATED"
+        overall_confidence = classifier_confidence
 
-    elif clip_verdict == "FAKE":
-        final_verdict = "SUSPICIOUS"
-        confidence = clip_fake
+    elif vision_judgment == "MANIPULATED":
+        overall_judgment = "QUESTIONABLE"
+        overall_confidence = manipulated_probability
 
     else:
-        final_verdict = "REAL"
-        confidence = max(clip_real, 1 - clip_fake)
+        overall_judgment = "AUTHENTIC"
+        overall_confidence = max(authentic_probability, 1 - manipulated_probability)
 
     return {
-        "final_verdict": final_verdict,
-        "confidence": round(confidence, 4),
+        "final_verdict": overall_judgment,
+        "confidence": round(overall_confidence, 4),
 
         "clip_analysis": {
-            "verdict": clip_verdict,
-            "fake_score": round(clip_fake, 4),
-            "real_score": round(clip_real, 4)
+            "verdict": vision_judgment,
+            "fake_score": round(manipulated_probability, 4),
+            "real_score": round(authentic_probability, 4)
         },
 
         "cnn_analysis": {
-            "verdict": cnn_verdict,
-            "label": cnn_label,
-            "score": round(cnn_score, 4)
+            "verdict": classifier_judgment,
+            "label": classifier_category,
+            "score": round(classifier_confidence, 4)
         }
     }

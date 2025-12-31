@@ -1,22 +1,22 @@
 const axios = require("axios");
 const FormData = require("form-data");
 
-async function uploadToIPFS(fileBuffer, fileName) {
-  const data = new FormData();
-  data.append("file", fileBuffer, fileName);
+async function transferToIPFS(fileContent, fileLabel) {
+  const payload = new FormData();
+  payload.append("file", fileContent, fileLabel);
 
-  const res = await axios.post(
+  const result = await axios.post(
     "https://api.pinata.cloud/pinning/pinFileToIPFS",
-    data,
+    payload,
     {
       headers: {
-        ...data.getHeaders(),
+        ...payload.getHeaders(),
         Authorization: `Bearer ${process.env.PINATA_JWT}`,
       },
     }
   );
 
-  return res.data.IpfsHash;
+  return result.data.IpfsHash;
 }
 
-module.exports = { uploadToIPFS };
+module.exports = { uploadToIPFS: transferToIPFS };

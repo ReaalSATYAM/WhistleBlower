@@ -2,7 +2,15 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 module.exports = {
-  solidity: "0.8.20",
+  solidity: {
+    version: "0.8.20",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   networks: {
     amoy: {
       url: process.env.RPC_URL,
@@ -11,3 +19,4 @@ module.exports = {
     },
   },
 };
+  

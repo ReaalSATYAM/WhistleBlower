@@ -1,127 +1,129 @@
-require("dotenv").config();
+const dotenv = require("dotenv");
+dotenv.config();
+
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const app = express();
+const application = express();
 
-// --- 1. SETUP UPLOADS FOLDER ---
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+// Establish uploads directory
+const uploadsFolder = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsFolder)) {
+  fs.mkdirSync(uploadsFolder);
 }
 
-// --- 2. PERSISTENCE FILE ---
-const DATA_FILE = path.join(__dirname, "reports.json");
+// Define storage for reports
+const REPORTS_STORAGE = path.join(__dirname, "reports.json");
 
-// Load reports from file
-let reportsDatabase = [];
-if (fs.existsSync(DATA_FILE)) {
-  const rawData = fs.readFileSync(DATA_FILE);
+// Initialize reports storage
+let storedReports = [];
+if (fs.existsSync(REPORTS_STORAGE)) {
+  const fileContent = fs.readFileSync(REPORTS_STORAGE);
   try {
-    reportsDatabase = JSON.parse(rawData);
-  } catch (err) {
-    console.error("Failed to parse reports.json, starting fresh");
-    reportsDatabase = [];
+    storedReports = JSON.parse(fileContent);
+  } catch (parseError) {
+    console.error("Error parsing reports.json, initializing empty storage");
+    storedReports = [];
   }
 }
 
-// Save reports to file
-const saveReports = () => {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(reportsDatabase, null, 2));
+// Function to persist reports
+const persistReports = () => {
+  fs.writeFileSync(REPORTS_STORAGE, JSON.stringify(storedReports, null, 2));
 };
 
-// --- 3. MIDDLEWARE ---
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use("/uploads", express.static("uploads")); // Public access to files
+// Configure middleware
+application.use(cors());
+application.use(express.json({ limit: "50mb" }));
+application.use(express.urlencoded({ limit: "50mb", extended: true }));
+application.use("/uploads", express.static("uploads"));
 
-// --- 4. MULTER CONFIG ---
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
+// Configure file upload
+const fileStorage = multer.diskStorage({
+  destination: (request, file, callback) => {
+    callback(null, "uploads/");
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+  filename: (request, file, callback) => {
+    callback(null, Date.now() + "-" + file.originalname);
   },
 });
-const upload = multer({ storage });
+const fileUpload = multer({ storage: fileStorage });
 
-// --- 5. ROUTES ---
+// Define API endpoints
 
-// POST: Save Report
-app.post("/api/report", upload.any(), (req, res) => {
+// Endpoint to submit a new report
+application.post("/api/report", fileUpload.any(), (request, response) => {
   try {
-    const { title, description } = req.body;
+    const { title, description } = request.body;
 
-    let evidencePaths = [];
-    if (req.files && req.files.length > 0) {
-      evidencePaths = req.files.map((file) => file.filename);
+    let attachedFiles = [];
+    if (request.files && request.files.length > 0) {
+      attachedFiles = request.files.map((file) => file.filename);
     }
 
-    const newId = Math.floor(Math.random() * 1000000).toString();
+    const uniqueId = Math.floor(Math.random() * 1000000).toString();
 
-    const newReport = {
-      id: newId,
+    const reportEntry = {
+      id: uniqueId,
       title,
       description,
       dept: "Vigilance Department",
-      evidence: evidencePaths,
+      evidence: attachedFiles,
       status: "Pending",
-      adminNote: "Waiting for admin review.",
+      adminNote: "Awaiting review by administrator.",
       createdAt: new Date().toISOString(),
     };
 
-    reportsDatabase.push(newReport);
-    saveReports();
+    storedReports.push(reportEntry);
+    persistReports();
 
-    console.log(`New report saved: ${newId} | Dept: Vigilance Department`);
-    res.json({ success: true, reportId: newId, department: "Vigilance Department" });
-  } catch (error) {
-    console.error("Error saving report:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.log(`Report submitted: ${uniqueId} | Department: Vigilance Department`);
+    response.json({ success: true, reportId: uniqueId, department: "Vigilance Department" });
+  } catch (submissionError) {
+    console.error("Submission error:", submissionError);
+    response.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
-// GET: Fetch all reports
-app.get("/api/reports", (req, res) => {
-  res.json(reportsDatabase);
+// Endpoint to retrieve all reports
+application.get("/api/reports", (request, response) => {
+  response.json(storedReports);
 });
 
-// POST: Update Status (AdminDashboard)
-app.post("/api/update-status", (req, res) => {
-  const { reportId, status, note } = req.body;
-  const report = reportsDatabase.find((r) => r.id === reportId);
-  if (report) {
-    report.status = status;
-    report.adminNote = note;
-    saveReports();
-    res.json({ success: true });
+// Endpoint to modify report status
+application.post("/api/update-status", (request, response) => {
+  const { reportId, status, note } = request.body;
+  const targetReport = storedReports.find((r) => r.id === reportId);
+  if (targetReport) {
+    targetReport.status = status;
+    targetReport.adminNote = note;
+    persistReports();
+    response.json({ success: true });
   } else {
-    res.status(404).json({ success: false, message: "Report not found" });
+    response.status(404).json({ success: false, message: "Report not located" });
   }
 });
 
-// GET: Check Status
-app.get("/api/status/:id", (req, res) => {
-  const report = reportsDatabase.find((r) => r.id === req.params.id);
-  if (report) {
-    res.json({
+// Endpoint to check report status
+application.get("/api/status/:id", (request, response) => {
+  const targetReport = storedReports.find((r) => r.id === request.params.id);
+  if (targetReport) {
+    response.json({
       found: true,
-      status: report.status,
-      dept: report.dept,
-      note: report.adminNote,
+      status: targetReport.status,
+      dept: targetReport.dept,
+      note: targetReport.adminNote,
     });
   } else {
-    res.json({ found: false });
+    response.json({ found: false });
   }
 });
 
-// --- 6. START SERVER ---
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Launch the server
+const SERVER_PORT = process.env.PORT || 5000;
+application.listen(SERVER_PORT, () => {
+  console.log(`Application running on port ${SERVER_PORT}`);
 });

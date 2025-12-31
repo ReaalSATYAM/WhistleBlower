@@ -1,272 +1,279 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const [role, setRole] = useState("");
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [realReports, setRealReports] = useState([]);
-  const [aiResults, setAiResults] = useState({});
-  const [processingFile, setProcessingFile] = useState(null);
+  /* ------------ STATE ------------ */
+  const [adminDept, setAdminDept] = useState("");
+  const [reports, setReports] = useState([]);
+  const [activeReport, setActiveReport] = useState(null);
 
-  /* ---------------- HELPERS ---------------- */
+  const [analysisCache, setAnalysisCache] = useState({});
+  const [busyFile, setBusyFile] = useState(null);
 
-  const normalizeStatus = (status) =>
-    (status || "Pending").toLowerCase();
+  /* ------------ HELPERS ------------ */
 
-  const getStatusStyles = (status) => {
-    switch (normalizeStatus(status)) {
-      case "accepted":
-        return "bg-green-50 border-green-500";
-      case "rejected":
-        return "bg-red-50 border-red-500";
-      default:
-        return "bg-white border-gray-200";
-    }
-  };
+  const normalizeStatus = (value) =>
+    value ? value.toLowerCase() : "pending";
 
-  const getEvidenceType = (filename) => {
-    const ext = filename.split(".").pop().toLowerCase();
-    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return "image";
-    if (["mp4", "webm", "ogg", "mov"].includes(ext)) return "video";
-    if (["mp3", "wav"].includes(ext)) return "audio";
+  const detectMediaType = (file) => {
+    const suffix = file.split(".").pop().toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(suffix)) return "image";
+    if (["mp4", "webm", "ogg", "mov"].includes(suffix)) return "video";
+    if (["mp3", "wav"].includes(suffix)) return "audio";
     return null;
   };
 
-  const fetchReports = () => {
-    fetch("http://localhost:5000/api/reports")
-      .then((res) => res.json())
-      .then((data) => {
-        const normalized = data.map((r) => ({
-          ...r,
-          status: normalizeStatus(r.status),
-        }));
-        setRealReports(normalized);
-      })
-      .catch((err) =>
-        console.error("Failed to fetch reports", err)
-      );
+  const extractEvidenceList = (item) => {
+    if (!item || !item.evidence) return [];
+    return Array.isArray(item.evidence)
+      ? item.evidence
+      : [item.evidence];
+  };
+
+  /* ------------ DATA FETCH ------------ */
+
+  const loadReports = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/reports");
+      const payload = await response.json();
+
+      const cleaned = payload.map((entry) => ({
+        ...entry,
+        status: normalizeStatus(entry.status),
+      }));
+
+      setReports(cleaned);
+    } catch (error) {
+      console.error("Unable to load reports", error);
+    }
   };
 
   useEffect(() => {
-    const savedRole = localStorage.getItem("adminRole");
-    if (!savedRole) {
+    const storedRole = localStorage.getItem("adminRole");
+    if (!storedRole) {
       navigate("/admin");
       return;
     }
-    setRole(savedRole);
-    fetchReports();
+
+    setAdminDept(storedRole);
+    loadReports();
   }, [navigate]);
 
-  /* ---------------- STATUS UPDATE ---------------- */
+  /* ------------ STATUS HANDLING ------------ */
 
-  const handleUpdateStatus = async (status) => {
-    if (!selectedReport) return;
+  const updateReportState = async (newState) => {
+    if (!activeReport) return;
 
-    const note = prompt(
-      `Enter note for ${status}:`,
-      status === "Accepted"
+    const comment = prompt(
+      `Add remark for ${newState}:`,
+      newState === "Accepted"
         ? "Evidence verified."
-        : "Insufficient or unreliable evidence."
+        : "Evidence insufficient."
     );
 
-    if (!note) return;
+    if (!comment) return;
 
     try {
       await fetch("http://localhost:5000/api/update-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          reportId: selectedReport.id,
-          status: status.toLowerCase(),
-          note,
+          reportId: activeReport.id,
+          status: newState,
+          note: comment,
         }),
       });
 
-      // Update UI instantly
-      setRealReports((prev) =>
-        prev.map((r) =>
-          r.id === selectedReport.id
-            ? { ...r, status: status.toLowerCase() }
-            : r
-        )
-      );
-
-      setSelectedReport(null);
-    } catch (err) {
-      console.error("Status update failed", err);
-      alert("Failed to update status");
+      setActiveReport(null);
+      loadReports();
+    } catch {
+      alert("Status update failed");
     }
   };
 
-  /* ---------------- AI PROCESSING ---------------- */
+  /* ------------ AI ANALYSIS ------------ */
 
-  const processEvidence = async (filename) => {
-    const type = getEvidenceType(filename);
-    if (!type) return alert("Unsupported file type");
+  const runAnalysis = async (fileName) => {
+    const category = detectMediaType(fileName);
+    if (!category) return alert("Unsupported file format");
 
-    setProcessingFile(filename);
+    setBusyFile(fileName);
 
     try {
-      const fileUrl = `http://localhost:5000/uploads/${filename}`;
-      const blob = await fetch(fileUrl).then((res) => res.blob());
+      const sourceUrl = `http://localhost:5000/uploads/${fileName}`;
+      const fileBlob = await fetch(sourceUrl).then((r) => r.blob());
 
-      const formData = new FormData();
-      formData.append("file", blob, filename);
-      formData.append("type", type);
+      const payload = new FormData();
+      payload.append("file", fileBlob, fileName);
+      payload.append("type", category);
 
-      const res = await fetch("http://localhost:5001/check-evidence", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "http://localhost:5001/check-evidence",
+        { method: "POST", body: payload }
+      );
 
-      const data = await res.json();
+      const result = await response.json();
 
-      setAiResults((prev) => ({
+      setAnalysisCache((prev) => ({
         ...prev,
-        [filename]: data.analysis,
+        [fileName]: result.analysis,
       }));
-    } catch (err) {
-      console.error(err);
-      alert("AI processing failed");
+    } catch {
+      alert("AI verification failed");
     } finally {
-      setProcessingFile(null);
+      setBusyFile(null);
     }
   };
 
-  /* ---------------- RENDER HELPERS ---------------- */
+  /* ------------ MEDIA RENDER ------------ */
 
-  const renderEvidenceItem = (filename) => {
-    const fileUrl = `http://localhost:5000/uploads/${filename}`;
-    const ext = filename.split(".").pop().toLowerCase();
+  const renderMedia = (fileName) => {
+    const link = `http://localhost:5000/uploads/${fileName}`;
+    const extension = fileName.split(".").pop().toLowerCase();
 
-    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext))
-      return <img src={fileUrl} alt="Proof" className="w-full rounded shadow" />;
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension))
+      return <img src={link} alt="Evidence" className="w-full rounded shadow" />;
 
-    if (["mp4", "webm", "ogg", "mov"].includes(ext))
-      return <video controls src={fileUrl} className="w-full rounded shadow" />;
+    if (["mp4", "webm", "ogg", "mov"].includes(extension))
+      return (
+        <video controls className="w-full rounded bg-black">
+          <source src={link} type={`video/${extension}`} />
+        </video>
+      );
 
-    if (["mp3", "wav"].includes(ext))
-      return <audio controls src={fileUrl} className="w-full mt-2" />;
+    if (["mp3", "wav"].includes(extension))
+      return <audio controls src={link} className="w-full mt-2" />;
 
-    return <a href={fileUrl}>Open File</a>;
+    return (
+      <a
+        href={link}
+        target="_blank"
+        rel="noreferrer"
+        className="text-blue-700 underline"
+      >
+        View Document
+      </a>
+    );
   };
 
-  const getEvidenceArray = (report) =>
-    Array.isArray(report.evidence)
-      ? report.evidence
-      : report.evidence
-      ? [report.evidence]
-      : [];
-
-  /* ---------------- UI ---------------- */
+  /* ------------ UI ------------ */
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <h2 className="text-3xl font-bold mb-8">{role} Dashboard</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {realReports.map((report) => (
-          <div
-            key={report.id}
-            className={`border-l-4 p-6 rounded shadow ${getStatusStyles(report.status)}`}
-          >
-            <h3 className="font-bold">{report.title}</h3>
-            <p className="text-gray-600">{report.description}</p>
+    <div className="min-h-screen flex bg-slate-50">
+      {/* Sidebar */}
+      <aside className="hidden md:flex w-64 bg-blue-900 text-white p-6 flex-col">
+        <h1 className="text-2xl font-bold mb-10">Govt. Vigilance</h1>
+        <button
+          className="mt-auto text-red-300"
+          onClick={() => navigate("/admin")}
+        >
+          Logout
+        </button>
+      </aside>
 
-            <p className="mt-2 text-sm font-bold">
-              Status: <span className="capitalize">{report.status}</span>
-            </p>
+      {/* Content */}
+      <main className="flex-1 p-8">
+        <h2 className="text-3xl font-bold mb-8">
+          {adminDept} Dashboard
+        </h2>
 
-            <button
-              onClick={() => setSelectedReport(report)}
-              className="mt-3 bg-blue-700 text-white px-4 py-2 rounded"
-            >
-              Review Evidence
-            </button>
-          </div>
-        ))}
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {reports
+            .filter((r) => r.dept === adminDept)
+            .map((entry) => (
+              <div
+                key={entry.id}
+                className="bg-white p-6 rounded-xl shadow border-l-4 border-blue-600"
+              >
+                <div className="flex justify-between mb-2">
+                  <h3 className="font-bold">{entry.title}</h3>
+                  <span className="text-xs bg-yellow-100 px-2 py-1 rounded font-bold">
+                    {entry.status}
+                  </span>
+                </div>
 
-
-      {/* -------- MODAL -------- */}
-      {selectedReport && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center p-4">
-          <div
-            className={`w-full max-w-4xl rounded shadow-lg p-6 overflow-y-auto max-h-[90vh] ${getStatusStyles(
-              selectedReport.status
-            )}`}
-          >
-            <h3 className="font-bold mb-4">
-              Report ID: {selectedReport.id}
-            </h3>
-
-            {getEvidenceArray(selectedReport).map((file, idx) => (
-              <div key={idx} className="border p-4 mb-4 rounded bg-white">
-                {renderEvidenceItem(file)}
+                <p className="text-slate-600 mb-4">
+                  {entry.description}
+                </p>
 
                 <button
-                  onClick={() => processEvidence(file)}
-                  disabled={processingFile === file}
-                  className="mt-3 bg-purple-700 text-white px-4 py-2 rounded"
+                  className="bg-blue-900 text-white px-4 py-2 rounded text-sm"
+                  onClick={() => setActiveReport(entry)}
                 >
-                  {processingFile === file
-                    ? "Processing..."
-                    : "Process Evidence"}
+                  Review Evidence
                 </button>
-
-                {aiResults[file] && (
-                  <div className="mt-4 border-l-4 border-purple-600 p-4 bg-slate-50 rounded">
-                    <p className="font-bold">
-                      AI Verdict:{" "}
-                      <span
-                        className={
-                          aiResults[file].final_verdict === "FAKE"
-                            ? "text-red-600"
-                            : aiResults[file].final_verdict === "SUSPICIOUS"
-                            ? "text-yellow-600"
-                            : "text-green-600"
-                        }
-                      >
-                        {aiResults[file].final_verdict}
-                      </span>
-                    </p>
-
-                    <p className="text-sm text-gray-600">
-                      Confidence: {aiResults[file].confidence ?? "N/A"}
-                    </p>
-
-                    <details className="mt-2 bg-gray-100 p-2 rounded text-xs">
-                      <summary className="cursor-pointer font-bold">Raw Analysis</summary>
-                      <pre>{JSON.stringify(aiResults[file], null, 2)}</pre>
-                    </details>
-                  </div>
-                )}
               </div>
             ))}
+        </div>
+      </main>
 
-            <div className="mt-6 flex justify-end gap-3 border-t pt-4">
+      {/* Modal */}
+      {activeReport && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white max-w-4xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+            <header className="bg-slate-900 text-white p-4 flex justify-between">
+              <h3 className="font-bold">
+                Report ID: {activeReport.id}
+              </h3>
+              <button onClick={() => setActiveReport(null)}>×</button>
+            </header>
+
+            <section className="p-6 overflow-y-auto bg-slate-100 flex-1">
+              {extractEvidenceList(activeReport).map((file, index) => (
+                <div key={index} className="bg-white p-4 rounded shadow mb-6">
+                  {renderMedia(file)}
+
+                  <button
+                    onClick={() => runAnalysis(file)}
+                    disabled={busyFile === file}
+                    className="mt-4 bg-purple-700 text-white px-4 py-2 rounded"
+                  >
+                    {busyFile === file ? "Processing…" : "Process Evidence"}
+                  </button>
+
+                  {analysisCache[file] && (
+                    <div className="mt-4 border-l-4 border-purple-600 bg-slate-50 p-4 rounded">
+                      <p className="font-bold">
+                        AI Verdict:{" "}
+                        <span
+                          className={
+                            analysisCache[file].final_verdict === "FAKE"
+                              ? "text-red-600"
+                              : analysisCache[file].final_verdict ===
+                                "SUSPICIOUS"
+                              ? "text-yellow-600"
+                              : "text-green-600"
+                          }
+                        >
+                          {analysisCache[file].final_verdict}
+                        </span>
+                      </p>
+                      <p className="text-sm">
+                        Confidence:{" "}
+                        {analysisCache[file].confidence ?? "N/A"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </section>
+
+            <footer className="p-4 border-t flex justify-end gap-3">
               <button
-                onClick={() => handleUpdateStatus("Accepted")}
-                className="px-6 py-2 bg-green-600 text-white rounded font-bold"
+                onClick={() => updateReportState("Accepted")}
+                className="bg-green-600 text-white px-6 py-2 rounded font-bold"
               >
                 Accept
               </button>
-
               <button
-                onClick={() => handleUpdateStatus("Rejected")}
-                className="px-6 py-2 bg-red-600 text-white rounded font-bold"
+                onClick={() => updateReportState("Rejected")}
+                className="bg-red-600 text-white px-6 py-2 rounded font-bold"
               >
                 Reject
               </button>
-
-              <button
-                onClick={() => setSelectedReport(null)}
-                className="px-6 py-2 bg-gray-300 text-gray-800 rounded font-bold"
-              >
-                Close
-              </button>
-            </div>
+            </footer>
           </div>
         </div>
       )}

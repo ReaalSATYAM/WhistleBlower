@@ -1,15 +1,15 @@
 const hre = require("hardhat");
 
-async function main() {
-  const contract = await hre.ethers.deployContract("Whistleblower");
+async function deploy() {
+  const deployedContract = await hre.ethers.deployContract("Whistleblower");
 
-  await contract.waitForDeployment();
+  await deployedContract.waitForDeployment();
 
-  console.log("Whistleblower deployed to:");
-  console.log(await contract.getAddress());
+  console.log("Whistleblower contract deployed at:");
+  console.log(await deployedContract.getAddress());
 }
 
-main().catch((error) => {
-  console.error(error);
+deploy().catch((deploymentError) => {
+  console.error(deploymentError);
   process.exitCode = 1;
 });

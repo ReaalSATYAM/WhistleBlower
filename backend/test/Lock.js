@@ -1,128 +1,86 @@
-import {
-  time,
-  loadFixture,
-} from "@nomicfoundation/hardhat-toolbox/network-helpers.js";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs.js";
+import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers.js";
 import chai from "chai";
 
 const { expect } = chai;
 
-describe("Lock", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployOneYearLockFixture() {
-    const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-    const ONE_GWEI = 1_000_000_000;
+describe("Whistleblower", function () {
+  // Fixture to deploy the Whistleblower contract
+  async function deployWhistleblowerFixture() {
+    const [submitter, otherAccount] = await ethers.getSigners();
 
-    const lockedAmount = ONE_GWEI;
-    const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
+    const Whistleblower = await ethers.getContractFactory("Whistleblower");
+    const whistleblower = await Whistleblower.deploy();
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await ethers.getSigners();
-
-    const Lock = await ethers.getContractFactory("Lock");
-    const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-    return { lock, unlockTime, lockedAmount, owner, otherAccount };
+    return { whistleblower, submitter, otherAccount };
   }
 
-  describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
+  describe("Report Submission", function () {
+    it("Should allow submitting a report and emit event", async function () {
+      const { whistleblower, submitter } = await loadFixture(deployWhistleblowerFixture);
 
-      expect(await lock.unlockTime()).to.equal(unlockTime);
+      const testHash = "QmTestHash123";
+
+      await expect(whistleblower.submitReport(testHash))
+        .to.emit(whistleblower, "ReportSubmitted")
+        .withArgs(0, testHash, await ethers.provider.getBlock("latest").then(b => b.timestamp));
     });
 
-    it("Should set the right owner", async function () {
-      const { lock, owner } = await loadFixture(deployOneYearLockFixture);
+    it("Should increment report count after submission", async function () {
+      const { whistleblower } = await loadFixture(deployWhistleblowerFixture);
 
-      expect(await lock.owner()).to.equal(owner.address);
+      const initialCount = await whistleblower.getReportsCount();
+      expect(initialCount).to.equal(0);
+
+      await whistleblower.submitReport("QmAnotherHash456");
+
+      const updatedCount = await whistleblower.getReportsCount();
+      expect(updatedCount).to.equal(1);
     });
 
-    it("Should receive and store the funds to lock", async function () {
-      const { lock, lockedAmount } = await loadFixture(
-        deployOneYearLockFixture
-      );
+    it("Should store report details correctly", async function () {
+      const { whistleblower } = await loadFixture(deployWhistleblowerFixture);
 
-      expect(await ethers.provider.getBalance(lock.target)).to.equal(
-        lockedAmount
-      );
+      const testHash = "QmStoredHash789";
+      await whistleblower.submitReport(testHash);
+
+      const report = await whistleblower.getReport(0);
+      expect(report[0]).to.equal(testHash); // ipfsHash
+      expect(report[1]).to.be.a('bigint'); // timestamp
     });
 
-    it("Should fail if the unlockTime is not in the future", async function () {
-      // We don't use the fixture here because we want a different deployment
-      const latestTime = await time.latest();
-      const Lock = await ethers.getContractFactory("Lock");
-      await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-        "Unlock time should be in the future"
-      );
+    it("Should revert when accessing invalid report index", async function () {
+      const { whistleblower } = await loadFixture(deployWhistleblowerFixture);
+
+      await expect(whistleblower.getReport(99)).to.be.revertedWith("Invalid report ID");
     });
   });
 
-  describe("Withdrawals", function () {
-    describe("Validations", function () {
-      it("Should revert with the right error if called too soon", async function () {
-        const { lock } = await loadFixture(deployOneYearLockFixture);
+  describe("Report Retrieval", function () {
+    it("Should return correct report data", async function () {
+      const { whistleblower } = await loadFixture(deployWhistleblowerFixture);
 
-        await expect(lock.withdraw()).to.be.revertedWith(
-          "You can't withdraw yet"
-        );
-      });
+      const hash1 = "QmFirstReport";
+      const hash2 = "QmSecondReport";
 
-      it("Should revert with the right error if called from another account", async function () {
-        const { lock, unlockTime, otherAccount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+      await whistleblower.submitReport(hash1);
+      await whistleblower.submitReport(hash2);
 
-        // We can increase the time in Hardhat Network
-        await time.increaseTo(unlockTime);
+      const report1 = await whistleblower.getReport(0);
+      const report2 = await whistleblower.getReport(1);
 
-        // We use lock.connect() to send a transaction from another account
-        await expect(lock.connect(otherAccount).withdraw()).to.be.revertedWith(
-          "You aren't the owner"
-        );
-      });
-
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-        const { lock, unlockTime } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        // Transactions are sent using the first signer by default
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw()).not.to.be.reverted;
-      });
+      expect(report1[0]).to.equal(hash1);
+      expect(report2[0]).to.equal(hash2);
     });
 
-    describe("Events", function () {
-      it("Should emit an event on withdrawals", async function () {
-        const { lock, unlockTime, lockedAmount } = await loadFixture(
-          deployOneYearLockFixture
-        );
+    it("Should maintain accurate total count", async function () {
+      const { whistleblower } = await loadFixture(deployWhistleblowerFixture);
 
-        await time.increaseTo(unlockTime);
+      await whistleblower.submitReport("QmHash1");
+      await whistleblower.submitReport("QmHash2");
+      await whistleblower.submitReport("QmHash3");
 
-        await expect(lock.withdraw())
-          .to.emit(lock, "Withdrawal")
-          .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
-      });
-    });
-
-    describe("Transfers", function () {
-      it("Should transfer the funds to the owner", async function () {
-        const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
-          deployOneYearLockFixture
-        );
-
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.withdraw()).to.changeEtherBalances(
-          [owner, lock],
-          [lockedAmount, -lockedAmount]
-        );
-      });
+      const total = await whistleblower.getReportsCount();
+      expect(total).to.equal(3);
     });
   });
 });

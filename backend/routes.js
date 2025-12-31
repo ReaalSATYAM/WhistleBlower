@@ -4,92 +4,86 @@ const multer = require("multer");
 const { uploadToIPFS } = require("./ipfs");
 const { storeHash } = require("./blockchain");
 
-const router = express.Router();
-const upload = multer(); 
+const routeHandler = express.Router();
+const fileHandler = multer();
 
-/* ============================
-   SUBMIT REPORT (ANONYMOUS)
-============================ */
-router.post("/report", upload.single("evidence"), async (req, res) => {
+// Route for anonymous report submission
+routeHandler.post("/report", fileHandler.single("evidence"), async (request, response) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No evidence file uploaded" });
+    if (!request.file) {
+      return response.status(400).json({ error: "Evidence file is required" });
     }
 
-    // 1️⃣ Upload to IPFS
-    const ipfsHash = await uploadToIPFS(
-      req.file.buffer,
-      req.file.originalname
+    // Step 1: Transfer file to IPFS
+    const ipfsIdentifier = await uploadToIPFS(
+      request.file.buffer,
+      request.file.originalname
     );
 
-    // 2️⃣ Store hash on blockchain
-    const txHash = await storeHash(ipfsHash);
+    // Step 2: Record identifier on blockchain
+    const transactionIdentifier = await storeHash(ipfsIdentifier);
 
-    res.json({
+    response.json({
       success: true,
-      ipfsHash,
-      blockchainTx: txHash,
+      ipfsHash: ipfsIdentifier,
+      blockchainTx: transactionIdentifier,
     });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (processingError) {
+    response.status(500).json({ error: processingError.message });
   }
 });
 
-/* ============================
-   VERIFY REPORT (READ-ONLY)
-============================ */
-router.get("/verify/:id", async (req, res) => {
+// Route for report verification
+routeHandler.get("/verify/:id", async (request, response) => {
   try {
     const { ethers } = require("ethers");
 
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const networkProvider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
-    const abi = [
+    const contractInterface = [
       "function reports(uint256) view returns (string ipfsHash, uint256 timestamp)"
     ];
 
-    const contract = new ethers.Contract(
+    const smartContract = new ethers.Contract(
       process.env.CONTRACT_ADDRESS,
-      abi,
-      provider
+      contractInterface,
+      networkProvider
     );
 
-    const report = await contract.reports(req.params.id);
+    const retrievedReport = await smartContract.reports(request.params.id);
 
-    res.json({
-      ipfsHash: report.ipfsHash,
-      timestamp: report.timestamp.toString(),
+    response.json({
+      ipfsHash: retrievedReport.ipfsHash,
+      timestamp: retrievedReport.timestamp.toString(),
     });
   } catch {
-    res.status(400).json({ error: "Invalid report ID" });
+    response.status(400).json({ error: "Report identifier is invalid" });
   }
 });
 
-/* ============================
-   ADMIN: TOTAL REPORT COUNT
-============================ */
-router.get("/admin/count", async (req, res) => {
+// Route for admin report count
+routeHandler.get("/admin/count", async (request, response) => {
   try {
     const { ethers } = require("ethers");
 
-    const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+    const networkProvider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
-    const abi = [
+    const contractInterface = [
       "function getReportsCount() view returns (uint256)"
     ];
 
-    const contract = new ethers.Contract(
+    const smartContract = new ethers.Contract(
       process.env.CONTRACT_ADDRESS,
-      abi,
-      provider
+      contractInterface,
+      networkProvider
     );
 
-    const count = await contract.getReportsCount();
+    const totalCount = await smartContract.getReportsCount();
 
-    res.json({ totalReports: count.toString() });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    response.json({ totalReports: totalCount.toString() });
+  } catch (countError) {
+    response.status(500).json({ error: countError.message });
   }
 });
 
-module.exports = router;
+module.exports = routeHandler;
