@@ -1,4 +1,4 @@
-# WhistleBlower 🚨
+# WhistleBlower# WhistleBlower 🚨
 
 
 A decentralized platform for securely submitting and reviewing complaints or reports of misconduct, combining **AI, blockchain, and modern web technologies**.
