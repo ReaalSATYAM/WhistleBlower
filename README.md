@@ -146,6 +146,23 @@ By making reporting easy, secure, and reliable, WhistleBlower helps uncover corr
 
 - Paves the way for a corruption-free India through technology-driven accountability.
 
+## Project Documentation Structure
+
+To ensure **clarity, transparency, and ease of evaluation**, this repository follows a **modular documentation approach**.
+
+Each major component of the system has its **own dedicated README file**, explaining:
+- Design decisions
+- Technical flow
+- Models, tools, and limitations
+- Current implementation (Round 1)
+- Planned improvements (Round 2)
+
+### Available Module-wise READMEs
+
+- `evidence_service/README.md` → AI models, deepfake detection pipeline (image/video/audio)
+- `blockchain/README.md` → Smart contract design and immutability logic
+- `backend/README.md` → API design, report handling, storage flow
+- `frontend/README.md` → User interface, admin dashboard, UX flow
 
 # License
 
