@@ -64,7 +64,7 @@ A decentralized platform for securely submitting and reviewing complaints or rep
 ## Technical Flow / Architecture
 
 ### User Submits Report
-- Title, description, and multimedia evidence are uploaded via the web/mobile interface.
+- Title, description, and multimedia evidence are uploaded via the web interface without any login.
 
 ### Server Processing
 - Backend stores the report in the database and uploads files to server storage.
@@ -131,6 +131,7 @@ The live demo showcases:
 
 ### 2. Admin Login
    - **Action**: Admin logs into the dashboard to review evidence.
+   - Password: admin123
    - ![Admin Login](adminLogin.png)
 
 ### 3. Process the Evidence Using AI Models and Accept/Reject it.
