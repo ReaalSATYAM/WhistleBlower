@@ -163,10 +163,10 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* Sidebar */}
-      <aside className="hidden md:flex w-64 bg-blue-900 text-white p-6 flex-col">
-        <h1 className="text-2xl font-bold mb-10">Govt. Vigilance</h1>
+      <aside className="hidden md:flex w-64 bg-slate-900 text-white p-6 flex-col border-r border-slate-800">
+        <h1 className="text-2xl font-bold mb-10 tracking-tight">Govt. Vigilance</h1>
         <button
-          className="mt-auto text-red-300"
+          className="mt-auto px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-sm font-semibold transition-colors"
           onClick={() => navigate("/admin")}
         >
           Logout
@@ -174,8 +174,8 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Content */}
-      <main className="flex-1 p-8">
-        <h2 className="text-3xl font-bold mb-8">
+      <main className="flex-1 p-8 overflow-y-auto">
+        <h2 className="text-3xl font-bold mb-8 text-slate-800">
           {adminDept} Dashboard
         </h2>
 
@@ -185,21 +185,25 @@ const AdminDashboard = () => {
             .map((entry) => (
               <div
                 key={entry.id}
-                className="bg-white p-6 rounded-xl shadow border-l-4 border-blue-600"
+                className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-teal-500 hover:shadow-md transition-shadow"
               >
-                <div className="flex justify-between mb-2">
-                  <h3 className="font-bold">{entry.title}</h3>
-                  <span className="text-xs bg-yellow-100 px-2 py-1 rounded font-bold">
+                <div className="flex justify-between mb-3">
+                  <h3 className="font-bold text-lg text-slate-900">{entry.title}</h3>
+                  <span className={`text-xs px-2 py-1 rounded font-bold uppercase tracking-wide ${
+                    entry.status === "accepted" ? "bg-emerald-100 text-emerald-700" :
+                    entry.status === "rejected" ? "bg-rose-100 text-rose-700" :
+                    "bg-amber-100 text-amber-700"
+                  }`}>
                     {entry.status}
                   </span>
                 </div>
 
-                <p className="text-slate-600 mb-4">
+                <p className="text-slate-600 mb-6 line-clamp-2">
                   {entry.description}
                 </p>
 
                 <button
-                  className="bg-blue-900 text-white px-4 py-2 rounded text-sm"
+                  className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
                   onClick={() => setActiveReport(entry)}
                 >
                   Review Evidence
@@ -211,67 +215,76 @@ const AdminDashboard = () => {
 
       {/* Modal */}
       {activeReport && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white max-w-4xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
-            <header className="bg-slate-900 text-white p-4 flex justify-between">
-              <h3 className="font-bold">
-                Report ID: {activeReport.id}
-              </h3>
-              <button onClick={() => setActiveReport(null)}>×</button>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white max-w-4xl w-full rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <header className="bg-slate-900 text-white p-6 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-lg">Case Review</h3>
+                <p className="text-slate-400 text-xs font-mono">ID: {activeReport.id}</p>
+              </div>
+              <button 
+                onClick={() => setActiveReport(null)}
+                className="text-slate-400 hover:text-white transition-colors text-2xl"
+              >
+                &times;
+              </button>
             </header>
 
-            <section className="p-6 overflow-y-auto bg-slate-100 flex-1">
+            <section className="p-8 overflow-y-auto bg-slate-50 flex-1">
+              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Evidence Files</h4>
               {extractEvidenceList(activeReport).map((file, index) => (
-                <div key={index} className="bg-white p-4 rounded shadow mb-6">
-                  {renderMedia(file)}
+                <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                  <div className="mb-4">
+                    {renderMedia(file)}
+                  </div>
 
-                  <button
-                    onClick={() => runAnalysis(file)}
-                    disabled={busyFile === file}
-                    className="mt-4 bg-purple-700 text-white px-4 py-2 rounded"
-                  >
-                    {busyFile === file ? "Processing…" : "Process Evidence"}
-                  </button>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <button
+                      onClick={() => runAnalysis(file)}
+                      disabled={busyFile === file}
+                      className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      {busyFile === file ? "Processing AI Analysis..." : "Run AI Deepfake Check"}
+                    </button>
 
-                  {analysisCache[file] && (
-                    <div className="mt-4 border-l-4 border-purple-600 bg-slate-50 p-4 rounded">
-                      <p className="font-bold">
-                        AI Verdict:{" "}
-                        <span
-                          className={
-                            analysisCache[file].final_verdict === "FAKE"
-                              ? "text-red-600"
-                              : analysisCache[file].final_verdict ===
-                                "SUSPICIOUS"
-                              ? "text-yellow-600"
-                              : "text-green-600"
-                          }
-                        >
-                          {analysisCache[file].final_verdict}
-                        </span>
-                      </p>
-                      <p className="text-sm">
-                        Confidence:{" "}
-                        {analysisCache[file].confidence ?? "N/A"}
-                      </p>
-                    </div>
-                  )}
+                    {analysisCache[file] && (
+                      <div className="flex-1 min-w-[200px] border-l-4 border-purple-500 bg-purple-50 p-3 rounded text-sm">
+                        <p className="font-bold text-purple-900">
+                          AI Verdict:{" "}
+                          <span
+                            className={
+                              analysisCache[file].final_verdict === "FAKE"
+                                ? "text-red-600"
+                                : analysisCache[file].final_verdict === "SUSPICIOUS"
+                                ? "text-amber-600"
+                                : "text-emerald-600"
+                            }
+                          >
+                            {analysisCache[file].final_verdict}
+                          </span>
+                        </p>
+                        <p className="text-purple-700 text-xs">
+                          Confidence Score: {analysisCache[file].confidence ?? "N/A"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </section>
 
-            <footer className="p-4 border-t flex justify-end gap-3">
-              <button
-                onClick={() => updateReportState("Accepted")}
-                className="bg-green-600 text-white px-6 py-2 rounded font-bold"
-              >
-                Accept
-              </button>
+            <footer className="p-6 border-t border-slate-100 flex justify-end gap-3 bg-white">
               <button
                 onClick={() => updateReportState("Rejected")}
-                className="bg-red-600 text-white px-6 py-2 rounded font-bold"
+                className="px-6 py-2 rounded-lg font-bold border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
               >
-                Reject
+                Reject Case
+              </button>
+              <button
+                onClick={() => updateReportState("Accepted")}
+                className="bg-teal-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-teal-500 shadow-lg shadow-teal-500/20 transition-colors"
+              >
+                Verify & Accept
               </button>
             </footer>
           </div>

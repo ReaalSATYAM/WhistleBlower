@@ -40,47 +40,56 @@ export default function Status() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center py-16 px-4">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-20 px-4">
         <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-          <div className="bg-blue-900 p-6 text-center">
-            <h2 className="text-2xl font-bold text-white">Track Your Report</h2>
+          <div className="bg-slate-900 p-8 text-center border-b border-slate-800">
+            <h2 className="text-3xl font-bold text-white tracking-tight">Track Your Report</h2>
+            <p className="text-slate-400 mt-2 text-sm">Enter your unique tracking ID provided during submission.</p>
           </div>
 
           <div className="p-8">
-            <input
-              type="text"
-              placeholder="Enter Report ID"
-              onChange={(e) => setId(e.target.value)}
-              className="w-full p-4 border-2 border-slate-200 rounded-xl mb-4 text-lg"
-            />
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-slate-700 uppercase tracking-wider mb-2">Report ID</label>
+              <input
+                type="text"
+                placeholder="e.g. 5f4d3c2b..."
+                onChange={(e) => setId(e.target.value)}
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all placeholder:text-slate-400 font-medium text-slate-900 text-lg"
+              />
+            </div>
 
             <button 
               onClick={check} 
               disabled={loading}
-              className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700"
+              className="w-full bg-teal-600 text-white font-bold py-4 rounded-xl hover:bg-teal-500 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading ? "Checking..." : "Check Status"}
+              {loading ? "Verifying..." : "Check Status"}
             </button>
 
             {result && (
-              <div className={`mt-8 border-l-4 p-6 rounded-r-xl shadow-sm animate-fade-in ${
-                result.status === "Accepted" ? "bg-green-50 border-green-500" :
-                result.status === "Rejected" ? "bg-red-50 border-red-500" :
-                "bg-yellow-50 border-yellow-500"
+              <div className={`mt-8 border-l-4 p-6 rounded-r-xl shadow-sm animate-fade-in transition-all ${
+                result.status === "Accepted" ? "bg-emerald-50 border-emerald-500" :
+                result.status === "Rejected" ? "bg-rose-50 border-rose-500" :
+                "bg-amber-50 border-amber-500"
               }`}>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-slate-500 text-xs font-bold uppercase">Status</span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                     result.status === "Accepted" ? "bg-green-200 text-green-800" :
-                     result.status === "Rejected" ? "bg-red-200 text-red-800" :
-                     "bg-yellow-200 text-yellow-800"
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">Current Status</span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                     result.status === "Accepted" ? "bg-emerald-100 text-emerald-800" :
+                     result.status === "Rejected" ? "bg-rose-100 text-rose-800" :
+                     "bg-amber-100 text-amber-800"
                   }`}>
                     {result.status}
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-1">{result.dept}</h3>
-                <div className="bg-white p-3 rounded border border-slate-200 text-slate-700 italic text-sm mt-3">
-                  "Admin Note: {result.note}"
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold text-slate-900">{result.dept}</h3>
+                  <p className="text-xs text-slate-500">Submitted on: {result.date}</p>
+                </div>
+                
+                <div className="bg-white/60 p-4 rounded-lg border border-black/5 text-slate-700 italic text-sm">
+                  <span className="font-semibold text-slate-900 not-italic block mb-1">Admin Note:</span>
+                  " {result.note} "
                 </div>
               </div>
             )}
