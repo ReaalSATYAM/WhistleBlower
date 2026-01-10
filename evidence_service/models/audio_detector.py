@@ -6,7 +6,8 @@ from pydub import AudioSegment
 from transformers import AutoFeatureExtractor, AutoModelForAudioClassification
 
 # Initialize audio analysis model
-AUDIO_MODEL_ID = "DavidCombei/wav2vec2-xls-r-300m-deepfake-V1"
+AUDIO_MODEL_ID = "wavlm_asvspoof_hav_hindi.pth" #UPDATED trained model which is finetuned and does not work with this code 
+#It needs a seperate code for work
 
 audio_extractor = AutoFeatureExtractor.from_pretrained(AUDIO_MODEL_ID)
 audio_model = AutoModelForAudioClassification.from_pretrained(AUDIO_MODEL_ID)
