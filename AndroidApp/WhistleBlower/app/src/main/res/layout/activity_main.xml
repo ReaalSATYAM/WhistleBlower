@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/slate_900">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="30dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="●  Secure &amp; Confidential"
+                android:textColor="#CBD5E1"
+                android:background="@drawable/dashed_border"
+                android:backgroundTint="#1E293B"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Speak Up\nWithout Fear"
+                android:textColor="@color/white"
+                android:textSize="36sp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:layout_marginTop="20dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Anonymous reporting powered by blockchain technology. Zero tracking."
+                android:textColor="@color/slate_500"
+                android:textAlignment="center"
+                android:layout_marginTop="12dp"
+                android:textSize="14sp"/>
+
+            <Button
+                android:id="@+id/btnGoToStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check Submission Progress"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/slate_800"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:cardBackgroundColor="@color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Submit Complaint"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_900"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="REPORT SUBJECT"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_500"
+                    android:layout_marginTop="20dp"/>
+
+                <EditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="E.g., Financial Misconduct"
+                    android:background="@android:drawable/editbox_background"
+                    android:backgroundTint="@color/slate_50"
+                    android:padding="16dp"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DETAILED DESCRIPTION"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_500"
+                    android:layout_marginTop="20dp"/>
+
+                <EditText
+                    android:id="@+id/etDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Provide as much detail as possible..."
+                    android:gravity="top"
+                    android:lines="5"
+                    android:background="@android:drawable/editbox_background"
+                    android:backgroundTint="@color/slate_50"
+                    android:padding="16dp"
+                    android:layout_marginTop="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EVIDENCE UPLOAD"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/slate_500"
+                    android:layout_marginTop="20dp"/>
+
+                <LinearLayout
+                    android:id="@+id/layoutAddFiles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/dashed_border"
+                    android:padding="30dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center">
+
+                    <Button
+                        android:id="@+id/btnAddFile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Click to Upload"
+                        android:textColor="@color/teal_600"
+                        android:textStyle="bold"
+                        android:backgroundTint="@color/white"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Documents, Images, Audio or Video"
+                        android:textColor="@color/slate_500"
+                        android:textSize="12sp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvFileCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Files: 0"
+                    android:visibility="gone"
+                    android:textAlignment="center"
+                    android:layout_marginTop="5dp"/>
+
+                <TextView
+                    android:id="@+id/tvSelectedFileNames"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0 Files Attached"
+                    android:textAlignment="center"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/teal_600"
+                    android:textStyle="bold"
+                    android:textSize="12sp"/>
+
+                <Button
+                    android:id="@+id/btnSubmitReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Submit Secure Report"
+                    android:backgroundTint="@color/teal_500"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="30dp"
+                    android:textStyle="bold"
+                    android:padding="14dp"/>
+
+                <TextView
+                    android:id="@+id/tvAdminAccess"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Admin Login"
+                    android:textAlignment="center"
+                    android:textColor="@color/slate_200"
+                    android:layout_marginTop="20dp"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</ScrollView>
