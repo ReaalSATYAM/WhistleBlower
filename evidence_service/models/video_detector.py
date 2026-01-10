@@ -3,31 +3,32 @@ import torch
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel, pipeline
 
-# -------------------------------
-# Load CLIP
-# -------------------------------
-clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-clip_model.eval()
+CLIP_MODELS = {
+    "vit-base-32": "openai/clip-vit-base-patch32",
+    "vit-base-16": "openai/clip-vit-base-patch16",
+    "vit-large-14": "openai/clip-vit-large-patch14"
+}
 
-CLIP_TEXTS = [
-    "a real photograph",
-    "a fake image",
-    "an AI generated image",
-    "a deepfake image"
+clip_models = {}
+clip_processors = {}
+
+for name, model_id in CLIP_MODELS.items():
+    clip_models[name] = CLIPModel.from_pretrained(model_id)
+    clip_models[name].eval()
+    clip_processors[name] = CLIPProcessor.from_pretrained(model_id)
+
+VISION_PROMPTS = [
+    "an authentic photo",
+    "a manipulated picture",
+    "a computer-generated picture",
+    "a synthetic image"
 ]
 
-# -------------------------------
-# Load CNN Deepfake Detector
-# -------------------------------
 cnn_detector = pipeline(
     "image-classification",
     model="prithivMLmods/deepfake-detector-model-v1"
 )
 
-# -------------------------------
-# Video Analysis Function
-# -------------------------------
 def analyze_video(
     video_path,
     frame_interval=10,
@@ -53,24 +54,37 @@ def analyze_video(
             checked_frames += 1
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-            # ===== CLIP INFERENCE =====
-            clip_inputs = clip_processor(
-                text=CLIP_TEXTS,
-                images=image,
-                return_tensors="pt",
-                padding=True
-            )
+            real_probs = []
+            fake_probs = []
 
-            with torch.no_grad():
-                clip_outputs = clip_model(**clip_inputs)
-                clip_probs = clip_outputs.logits_per_image.softmax(dim=1)[0]
+            for name in clip_models:
+                processor = clip_processors[name]
+                model = clip_models[name]
 
-            clip_fake = max(
-                clip_probs[1].item(),
-                clip_probs[2].item(),
-                clip_probs[3].item()
-            )
-            clip_is_fake = clip_fake > clip_threshold
+                clip_input = processor(
+                    text=VISION_PROMPTS,
+                    images=image,
+                    return_tensors="pt",
+                    padding=True
+                )
+
+                with torch.no_grad():
+                    clip_output = model(**clip_input)
+                    clip_probs = clip_output.logits_per_image.softmax(dim=1)[0]
+
+                authentic_prob = clip_probs[0].item()
+                manipulated_prob = max(
+                    clip_probs[1].item(),
+                    clip_probs[2].item(),
+                    clip_probs[3].item()
+                )
+
+                real_probs.append(authentic_prob)
+                fake_probs.append(manipulated_prob)
+
+            avg_authentic_prob = sum(real_probs) / len(real_probs)
+            avg_manipulated_prob = sum(fake_probs) / len(fake_probs)
+            clip_is_fake = avg_manipulated_prob > clip_threshold
             if clip_is_fake:
                 clip_fake_frames += 1
 
@@ -78,12 +92,9 @@ def analyze_video(
             cnn_preds = cnn_detector(image)
             cnn_label = cnn_preds[0]["label"].lower()
             cnn_score = cnn_preds[0]["score"]
-
             cnn_is_fake = ("fake" in cnn_label) and (cnn_score > cnn_threshold)
             if cnn_is_fake:
                 cnn_fake_frames += 1
-
-            # ===== FRAME-LEVEL FUSION =====
             if clip_is_fake and cnn_is_fake:
                 consensus_fake_frames += 1
 
@@ -96,7 +107,6 @@ def analyze_video(
 
     consensus_ratio = consensus_fake_frames / checked_frames
 
-    # ===== VIDEO-LEVEL DECISION =====
     if consensus_ratio > fake_ratio_threshold:
         final_verdict = "FAKE"
     elif cnn_fake_frames / checked_frames > fake_ratio_threshold:
@@ -109,7 +119,6 @@ def analyze_video(
     return {
         "final_verdict": final_verdict,
         "checked_frames": checked_frames,
-
         "clip_fake_ratio": round(clip_fake_frames / checked_frames, 4),
         "cnn_fake_ratio": round(cnn_fake_frames / checked_frames, 4),
         "consensus_fake_ratio": round(consensus_ratio, 4)
