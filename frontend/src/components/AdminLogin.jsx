@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginAdmin } from '../api/api';
 
 const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simple verification
-    if (password === "admin123") {
-      // Save a generic role
-      localStorage.setItem("adminRole", "Vigilance Department"); 
-      navigate("/admin/dashboard");
-    } else {
-      alert("Invalid Access Code");
+    try {
+      const response = await loginAdmin(password);
+      if (response.data.success) {
+        localStorage.setItem("adminRole", response.data.role);
+        navigate("/admin/dashboard");
+      }
+    } catch (err) {
+      alert("Invalid Access Code or Server Error");
     }
   };
 

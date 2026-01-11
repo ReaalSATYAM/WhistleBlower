@@ -1,16 +1,22 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:5000/api", // server endpoint
+  // server endpoint
+  baseURL: "http://localhost:5000/api",
 });
 
 export const sendSubmission = (dataPackage) =>
   apiClient.post("/report", dataPackage);
 
 export const checkSubmission = (identifier) =>
-  apiClient.get(`/verify/${identifier}`);
+  apiClient.get(`/status/${identifier}`);
 
-/*
-Future AI endpoints:
-export const analyzeSubmission = (inputData) => apiClient.post("/ml/analyze", inputData);
-*/
+export const loginAdmin = (password) =>
+  apiClient.post("/login", { password });
+
+export const fetchReports = () =>
+  apiClient.get("/reports");
+
+export const updateReportStatus = (reportId, status, note) =>
+  apiClient.post("/update-status", { reportId, status, note });
+

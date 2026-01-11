@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
 import { useState } from "react";
+import { checkSubmission } from "../api/api";
 
 export default function Status() {
   const [id, setId] = useState("");
@@ -13,8 +14,8 @@ export default function Status() {
     setResult(null);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/status/${id.trim()}`);
-      const data = await res.json();
+      const res = await checkSubmission(id.trim());
+      const data = res.data;
 
       if (data.found && data.status && data.dept) {
         setResult({

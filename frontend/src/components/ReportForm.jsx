@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { sendSubmission } from "../api/api";
 
 const ReportForm = () => {
   const navigate = useNavigate();
@@ -48,12 +49,10 @@ const ReportForm = () => {
     });
 
     try {
-      const response = await fetch("http://localhost:5000/api/report", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
+      // sendSubmission is defined in api.js and uses axios
+      const response = await sendSubmission(formData);
+      // axios returns data in response.data
+      const data = response.data;
 
       if (data.success) {
         alert(`Submitted Successfully! Track ID: ${data.reportId}`);

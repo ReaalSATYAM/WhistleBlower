@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchReports, updateReportStatus } from "../api/api";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -34,10 +35,12 @@ const AdminDashboard = () => {
 
   /* ------------ DATA FETCH ------------ */
 
+  /* ------------ DATA FETCH ------------ */
+  
   const loadReports = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/reports");
-      const payload = await response.json();
+      const response = await fetchReports();
+      const payload = response.data;
 
       const cleaned = payload.map((entry) => ({
         ...entry,
@@ -76,15 +79,7 @@ const AdminDashboard = () => {
     if (!comment) return;
 
     try {
-      await fetch("http://localhost:5000/api/update-status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          reportId: activeReport.id,
-          status: newState,
-          note: comment,
-        }),
-      });
+      await updateReportStatus(activeReport.id, newState, comment);
 
       setActiveReport(null);
       loadReports();
