@@ -7,15 +7,54 @@
 
 ## Project Overview
 
-WhistleBlower is a **decentralized platform** designed to allow users to securely submit and verify evidence (images, videos, or audio) with the help of AI-powered DeepFake detection. The platform ensures:
+**WhistleBlower** is a decentralized, multi-platform system designed to securely collect, verify, and store evidence in a tamper-resistant manner. It leverages **AI-powered deepfake detection** alongside blockchain-inspired logging to provide trustworthy validation for images, videos, and audio submissions.  
 
-- **Trustworthy Evidence Verification** using AI models.
-- **User-friendly Mobile & Web Interface** for reporting and reviewing evidence.
-- **Blockchain-style Logging** to maintain tamper-resistant records.
-- **Multi-modal Support** for images, videos, and audio files.
+The system is built around three primary components:
 
-This project aims to **empower whistleblowers** and organizations with reliable tools for verifying digital content in a scalable and secure manner.
+---
 
+### 1. Evidence Submission & Processing
+
+- **Android App & Web Frontend:**  
+  - Users submit evidence through the mobile or web interface.  
+  - Supports multi-modal input: images, videos, and audio files.  
+  - Automatic MIME type detection to route files for appropriate AI processing.  
+
+- **AI Integration:**  
+  - **DeepFake Detection Models:**  
+    - For **image/video**: Vision-language consistency models (CLIP + CNN-based classifiers).  
+    - For **audio**: Wav2Vec2-based deepfake detection model.  
+  - **Processing Flow:**  
+    1. File is received from the client.  
+    2. File is preprocessed (resized images, video frame extraction, audio resampling to 16kHz).  
+    3. AI model predicts synthetic vs natural content.  
+    4. Confidence scores and final verdict are returned to the client.
+
+- **Ensemble & Verdict Generation:**  
+  - For images and videos, multiple frames are analyzed and aggregated into a final “AI Verdict.”  
+  - Confidence thresholds determine if the result is **SYNTHETIC**, **NATURAL**, or **QUESTIONABLE**.  
+
+---
+
+### 2. Evidence Storage & Logging
+
+- **Blockchain-Inspired Hashing:**  
+  - Every piece of evidence is hashed and stored alongside a timestamp.  
+  - Ensures tamper-resistance without requiring a full blockchain implementation.  
+
+- **Database Architecture:**  
+  - **Relational Database (PostgreSQL/MySQL):**  
+    - Tables for users, reports, evidence metadata, AI results.  
+  - **Data Flow:**  
+    - Evidence → Preprocessing → AI Analysis → Verdict → Database storage.  
+  - Supports indexing for rapid retrieval and verification.
+
+- **Scalability Considerations:**  
+  - File storage can be offloaded to cloud storage (S3, GCP, or similar).  
+  - AI processing is modular and can scale horizontally using task queues (Celery / RabbitMQ) or serverless functions.  
+  - Database designed with indexing and caching layers to support increasing user loads.
+
+---
 ---
 
 ## Repository Structure
