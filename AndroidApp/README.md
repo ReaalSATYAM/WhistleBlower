@@ -71,7 +71,7 @@ These limitations discourage citizens from reporting genuine issues and reduce t
 
 
 ## AI Integration
-
+**AI Models** : [AI Model Demo](https://huggingface.co/spaces/ReaalSATYAM/DeepFakeDetector)
 ### AI Capabilities
 - Image, video, and audio analysis  
 - Deepfake detection  
