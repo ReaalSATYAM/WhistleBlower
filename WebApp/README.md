@@ -42,25 +42,6 @@ A decentralized platform for securely submitting and reviewing complaints or rep
 - Admin role verification for dashboard access.
 - Real-time rendering of AI results for each piece of evidence.
 
-## Round 2 Planned Enhancements
-### Flowchart
-<img src="https://mermaid.ink/img/pako:eNqNU9tu4jAQ_RXLK-0TdAnhmoeVUmjpjRZB25U29MHYE_CS2JHj0HYp_76TC6ioWrV58njOmTlzxtlSrgVQj4aRfuYrZiy5H84Vwc8PHlIw5Af5tZKpjWCBCDBPpF7_SU6DWbaIpSVTSDRyNpIRXwmjpSB-kuQkWDyVdU4LxiB4SCLNBDnbSAGKg0cuY7aEGnnEWNeInwmpK8qgoAyDGZgNSpgCB7mBdN_t-6FIhR8W-LNgZrWBQ5JIRWbAM7zKE9jsCH4e3OjlvuQYLBPMMmI1OY00X6MXUh3hR8E0U8S_JI9gZCg5s1LvEaMS4QTFTDh-MRQZAiQhWwMeLPCP-GZQTP0pzg0GWoXVVDOujVRLdAGFCMktGYECcyTHKXgXlSGo2Vcsek1lbmGaRTbdA5slsIrc99FFEVwGvojRyCFLVwvNjMAKGwnPVYHLAnS1rUDAZYoydmXyKk---ZxDYt_INb4AtBj2ls8ss1nqkTIP4uk9aQp_0Ig3cvMfUpk_kK4LGePgHEAsGF8XCweBHt1qi8vCIy72-CGXzJuSWQbjIrjFLcaZZYsob4tuC6LVx1dxW4DvgjMlyMRoDmmKi690DiKdHtRNAtzAGP-ziJxLBfX7TOULDLXBfyAxeoPyJmAwjln-qMulz1XJTu0rCvFJKKPI-xb2w1pqjV6D98113epcf5bCrrxm8vKec1dx-mHny5zRvk-4-DLn6qDt630mFafDP5uH1ujSSEE9azKo0RjQpTyk27zenNoVxDCnHh4FM-s5nasdchKmfmsd72lGZ8sV9UIWpRhlxaMaSrY0LD7cGlACzEBnylLPafXcogr1tvSFek3npN3ouz230ei0m-1mq0ZfqVdvt7onnVar0ey1Ow2n6zq7Gv1b9HVOuo1et9dz3G67g7B-f_cP2qy2xg?type=png" width="700">
-
-### Platform Expansion
-- Develop an Android mobile application for seamless report submission.
-- Real-time notifications for both users and admins.
-- Support for offline submission with later synchronization.
-
-### AI Enhancements
-- Fine-tune existing AI models for improved accuracy.
-- Introduce deepfake detection for audio evidence.
-- Expand verdict categories for clearer report evaluation.
-
-### UI / UX Improvements
-- Evidence filtering, sorting, and batch AI processing.
-- Enhanced analytics dashboard for administrators.
-- Better visualization of report trends and AI verdicts.
-
 ## Technical Flow / Architecture
 
 ### User Submits Report
@@ -187,6 +168,3 @@ Each major component of the system has its own dedicated README file, explaining
 - `blockchain/README.md` → Smart contract design and immutability logic
 - `backend/README.md` → API design, report handling, storage flow
 - `frontend/README.md` → User interface, admin dashboard, UX flow
-
-## License
-This project is open-source and available under the **MIT License**.
