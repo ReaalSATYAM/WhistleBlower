@@ -39,10 +39,20 @@ We use a combination of **CLIP** and **CNN-based deepfake detection** for robust
 - Runs both CLIP and CNN on sampled frames.
 - Aggregates frame-level results into a video-level verdict using consensus-based fusion.
 
-### 2. Audio Deepfake Detection (Experimental)
-- **Model**: DavidCombei/wav2vec2-xls-r-300m-deepfake-V1
-- Converts any uploaded audio to mono WAV with 16kHz.
-- Performs classification to detect real vs fake audio.
+### Audio Deepfake Detection Update
+
+Audio deepfake detection is no longer experimental and is now actively used in the system.
+
+#### Model Details
+- Base model: **Microsoft WavLM (Base)**  
+- Initial training performed on **ASVspoof dataset** for general spoofed audio detection  
+- Further **fine-tuned on Hindi HAV (Hindi Audio Verification) dataset** to improve performance on Hindi-language audio samples  
+
+This two-stage training approach significantly improves accuracy for regional language audio evidence, making the system more reliable for real-world government use cases.
+
+#### Training Implementation
+- The complete training and fine-tuning pipeline can be found in:
+---
 
 **Limitation**:  
 The model performed poorly for Hindi language, so this module is currently not in use. However, it demonstrates our experimental attempts.
