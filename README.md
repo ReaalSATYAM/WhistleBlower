@@ -56,6 +56,62 @@ The system is built around three primary components:
 
 ---
 
+### AI Models Used
+
+Our system leverages state-of-the-art AI models for detecting deepfakes in **images, videos, and audio**, with a special focus on Indian languages for audio.
+
+#### 1. Image & Video Deepfake Detection
+
+- **Model Architecture:**  
+  - Ensemble of convolutional neural networks (CNNs) and vision-language models (CLIP) for multi-frame video and static image detection.  
+  - Video inputs are processed frame-by-frame; predictions are aggregated to generate a final verdict.  
+  - Image inputs are resized and normalized before inference.
+
+- **Inference Pipeline:**  
+  1. Preprocess images/videos: resize, normalize, extract frames for video.  
+  2. Feed preprocessed data into CNN and CLIP ensemble.  
+  3. Compute per-frame probabilities for **synthetic vs real**.  
+  4. Aggregate probabilities across frames (for videos) and assign confidence scores.  
+  5. Generate final verdict: **SYNTHETIC**, **NATURAL**, or **QUESTIONABLE**.
+
+---
+
+#### 2. Audio Deepfake Detection
+
+We now have a fully operational **audio deepfake detection pipeline**, fine-tuned for **Hindi language** using high-quality datasets.
+
+- **Base Model:**  
+  - Microsoft **WavLM Base** (self-supervised pre-trained speech model).  
+  - Initially trained to detect **ASVspoof** (automatic speaker verification spoofing attacks).  
+
+- **Fine-tuning for Hindi:**  
+  - Collected **Hindi HAV (Hindi Audio Voice) dataset**, containing real and synthetic Hindi speech.  
+  - Fine-tuned WavLM Base on this dataset to improve detection of language-specific speech patterns and synthetic voice artifacts.  
+  - Achieved high accuracy in distinguishing real vs synthetic Hindi audio clips.
+
+- **Audio Processing Pipeline:**  
+  1. Input audio is resampled to **16kHz mono**.  
+  2. Features are extracted using **WavLM feature extractor**.  
+  3. Fine-tuned classifier outputs logits for **synthetic vs natural** speech.  
+  4. Confidence score is computed using softmax probabilities.  
+  5. For long audio clips, multiple segments are processed and aggregated into a final verdict.  
+
+- **Notes on Model Training:**  
+  - The full training and fine-tuning procedure is available in `audio.ipynb`.  
+  - Techniques used include **segment-level training, data augmentation (noise, pitch shifts), and weighted loss for class imbalance**.  
+  - The model is fully compatible with the existing Android and Web pipelines through RESTful endpoints.
+
+---
+
+#### 3. AI Verdict Integration
+
+- All AI predictions (image/video/audio) are returned as structured JSON including:  
+  ```json
+  {
+    "final_verdict": "SYNTHETIC",
+    "confidence": 0.93
+  }
+
 ## Repository Structure
 
 This repository contains two main modules:  
