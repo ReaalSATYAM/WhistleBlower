@@ -90,8 +90,9 @@ npm run dev
 ## Live Demo
 
 🔗 **Frontend Demo:**  
-[WhistleBlower Frontend Demo](https://reaalsatyam.github.io/WhistleBlower/)
+[WhistleBlower Frontend Demo](https://reaalsatyam.github.io/WhistleBlower/)  
 
+**AI Models** : [AI Model Demo](https://huggingface.co/spaces/ReaalSATYAM/DeepFakeDetector)
 The live demo showcases:
 <video width="400" height="240" controls>
   <source src="(https://github.com/ReaalSATYAM/WhistleBlower/WebApp/demo.mp4" type="video/mp4">
