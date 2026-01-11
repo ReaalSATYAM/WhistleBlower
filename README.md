@@ -55,7 +55,6 @@ The system is built around three primary components:
   - Database designed with indexing and caching layers to support increasing user loads.
 
 ---
----
 
 ## Repository Structure
 
