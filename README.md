@@ -78,6 +78,17 @@ This repository contains two main modules:
 
 ---
 
+### Key Technical Highlights
+
+- **Multi-modal DeepFake Detection** (images, video frames, and audio).  
+- **Decentralized Evidence Logging** using cryptographic hashes.  
+- **Scalable, Modular Architecture** capable of horizontal scaling for AI processing.  
+- **Clear Separation of Concerns:** Mobile frontend, web frontend, AI backend, and storage layers.  
+- **CI/CD Ready:** Code is organized in feature branches with PR reviews to ensure maintainability.  
+
+---
+
+
 ## Evaluation Focus
 
 For Round 2 our focus was on **execution, scalability, and technical depth**. We have ensured:
