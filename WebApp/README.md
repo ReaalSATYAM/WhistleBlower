@@ -94,10 +94,7 @@ npm run dev
 
 **AI Models** : [AI Model Demo](https://huggingface.co/spaces/ReaalSATYAM/DeepFakeDetector)
 The live demo showcases:
-<video width="400" height="240" controls>
-  <source src="(https://github.com/ReaalSATYAM/WhistleBlower/WebApp/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+( https://github.com/ReaalSATYAM/WhistleBlower/blob/main/WebApp/demo.mp4)
 
 - Whistleblower report submission flow
 - Admin login and dashboard UI
