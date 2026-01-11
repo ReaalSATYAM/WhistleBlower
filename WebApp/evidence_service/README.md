@@ -69,9 +69,3 @@ The backend sends the uploaded evidence path to the respective AI module. Each m
   "cnn_analysis": {...}
 }
 ```
-
-## Future Enhancements (Round 2)
-
--  Fine-tune models for mobile devices.
-- Improve performance for audio deepfake detection, especially for Hindi language.
-- Integrate directly with the Android app for seamless evidence verification.
