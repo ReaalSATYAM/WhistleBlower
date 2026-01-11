@@ -54,9 +54,6 @@ This two-stage training approach significantly improves accuracy for regional la
 - The complete training and fine-tuning pipeline can be found in:
 ---
 
-**Limitation**:  
-The model performed poorly for Hindi language, so this module is currently not in use. However, it demonstrates our experimental attempts.
-
 ## Integration with Backend
 The backend sends the uploaded evidence path to the respective AI module. Each module returns a structured JSON, for example:
 
