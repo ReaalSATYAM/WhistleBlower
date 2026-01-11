@@ -6,7 +6,7 @@ A decentralized platform for securely submitting and reviewing complaints or rep
 
 **Theme Selected**: Government + Blockchain + AI
 
-## Features Implemented (Round 1)
+## Features Implemented 
 ### Flowchart 
 <img src="https://mermaid.ink/img/pako:eNqNkttu4jAQhl_FcqW9ol0ChEMuVqLQUnpcwbaVNvTC2BPwktjIduiB8u47OAEVVastV57M988_B9aUawE0okmqn_mcGUd-9SeK4K8b31sw5Dt5nEvrUpgiAeaJHB__IKfxOJ9m0pERLDVqVpKRR5g-FcpTz_Ti-2WqmSBnKylAcYjIMGMzqJAHjHXJ9jzbj8dgVug2Ag5yBXZX-NteXfJ9z5_FY6cN7JNEKjIGnuOnbQJdDvDz-FrPdiVvwDHBHCNOk9NU8wWOLdUBP4hHuSLdIXkAIxPJmZN6RwwKIoj9MLgePw3pAywTtgB8OOCf-Xrc0yopux1zbaSa4XRoICR3ZAAKzIFN4HUX5aDYS1ex9NXK7Wpsnjq7A-sFWEQXPhjGXZHhSvrMzqeaGYGalYTnUjL00OW6hIBLi8abInm5Tb53OYeleydXeERcFuyWN3bM5TYiRR7E00fRCP7g6O_k-h-iIr8XXfk2buJzADFlfOFPBwK3cqsdrh2feKLDf1-hvC6URXDjg1u8R5Y7Nk23trhfQbT6fN9bD9_FZ0qQn0ZzsBZPWPbZS7X13RWsda9YrEsSmabRUdJJKtYZvYDoqF6vl-_jZyncPKotXz5q7kpNJ2l-WTPY-STTL2su9739z4dW6MxIQSNncqjQDEzGtiFdb-tNqJtDBhMa4VMws5jQidqgZsnUb62znczofDanUcJSi1Huj9yXbGZYtv9qQAkwPZ0rR6Og2g59FRqt6QuNao3mSbXdatbqIWZazaBRoa80ChsnYTVodmphI2gHYasdbir0zRtXT1rNVhAEYb3a6TQ7QbD5C7fie9w?type=png" width="700">
 
@@ -93,6 +93,11 @@ npm run dev
 [WhistleBlower Frontend Demo](https://reaalsatyam.github.io/WhistleBlower/)
 
 The live demo showcases:
+<video width="400" height="240" controls>
+  <source src="(https://github.com/ReaalSATYAM/WhistleBlower/WebApp/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 - Whistleblower report submission flow
 - Admin login and dashboard UI
 - Application routing and overall user experience
