@@ -108,12 +108,13 @@ The live demo showcases:
 
 ### 1. Enter the Evidence
    - **Action**: User uploads evidence (image, video, audio).
-   - ![Evidence Upload](front.png)
+   - ![Evidence Upload](1.jpg)
+   - ![Evidence Upload](2.jpg)
 
 ### 2. Admin Login
    - **Action**: Admin logs into the dashboard to review evidence.
    - Password: admin123
-   - ![Admin Login](adminLogin.png)
+   - ![Admin Login](4.jpg)
 
 ### 3. Process the Evidence Using AI Models and Accept/Reject it.
    - **Action**: Admin uses AI to analyze the evidence for authenticity and accepts or rejects the evidence after reviewing the AI results.
@@ -121,7 +122,7 @@ The live demo showcases:
 
 ### 4. Check the Status
    - **Action**: User or admin checks the status of the report.
-   - ![Report Status](status.png)
+   - ![Report Status](3.jpg)
 
 
 ## Vision & Purpose
