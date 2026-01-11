@@ -23,24 +23,7 @@ These limitations discourage citizens from reporting genuine issues and reduce t
 -  AI-based verification of submitted media  
 -  Transparent and auditable review workflow  
 -  Scalable architecture for government-wide adoption  
-## Demo
-### 1. Enter the Evidence
-   - **Action**: User uploads evidence (image, video, audio).
-   - <img src="3.jpg" width="300">
 
-### 2. Admin Login
-   - **Action**: Admin logs into the dashboard to review evidence.
-   - Password: admin123
-   - <img src="5.jpg" width="300">
-
-### 3. Process the Evidence Using AI Models and Accept/Reject it.
-   - **Action**: Admin uses AI to analyze the evidence for authenticity and accepts or rejects the evidence after reviewing the AI results.
-   - <img src="4.jpg" width="300">
-   - <img src="1.jpg" width="300">
-
-### 4. Check the Status
-   - **Action**: User or admin checks the status of the report.
-   - ![Report Status](5.jpg)
 ## Data Flow Diagram (DFD)
 <img src="https://mermaid.ink/img/pako:eNp9VNtu2kAQ_ZXVVpFaKUkxNhf7oZLxpUEhkECSqjV5WOwh3mKvrfWSe_696zUhG4rihxUzc87ZM-MxzzguEsAOXmbFfZwSLtClP2dzhuRzcICuKuAolLUmU60Xt5yUKbqaBdNojj0q6BMw9B39SmklMlhIKPA5vmnw9eNGk1JCNoCBAiC3LDXIIAqYkFkOZSEdJCAIzSoN4EWuECROEdzRBFgMWs2PZutFTsWGrd-Mjo5-oIE6PXX6TRFYovUoLcUr2TtlO00OPNniexWNyONOb0H0ExhwIgDFhWyBCZSSKtUQYTSFuOCJyqOCISWlAabRMM_XgiwykB3UUF1fuQ7VOd3n3R3ueHaH0rM7RNfA6ZLGRNCCfbB8Gs2kxHaQSBSSo9VHkQ9QLskKEGEke6yo_iLOIql9BzyhsT7pU-VwpM6zvT6T_L_xuv7ZcFy7rWtoKh3BPfLlmBYF4ckH0yfRdV1s3rDuZxhteHsWY_zsQ0wrOYDX9-QkcuMYyj3bci6l_kK8p3Ki-hqqc6zp14mXRu4FTXYLjdoLOt83j5kgYl014YW8uL5RfgBxCvGqQpWq3mh4r2BMqsleNiRfuQn04KQJGp-nTTBRwUUTnL8Fmo3HDCr0dTIe_UYngeujWeBdDifj2bfNy6oB6mtHS5plzpegFbbD4LASvFiB86Vldm3X2IRH9zQRqdMuH3TywNtQfS_0gt6WanS7HdP6lCp3raGGZtAPwy21O2gbbv9zar1cb-wwsILulm2HRtu097DxIb7lNMGO4Gs4xDnwnNQhfq6V51ikkMMcO_JnQvhqjufsVXJKwv4URf5G48X6NsXOkmSVjNZlIv8dfErkzufbLJfbANwr1kxgx25ZSgQ7z_gBO0d2-7jXN6xOr232LNtsy-qjTJuWfWx0TKNj9UzLMFtG7_UQP6mLjeOOZdqm3e93e1bPsgz79R9rt7ln?type=png" width="700">
 
@@ -147,15 +130,6 @@ files=[evidence1.mp4, evidence2.jpg]
   "message": "Report successfully recorded"
 }
 ```
-## Security & Privacy Considerations
-
-- No user login or identity collection  
-- No personal data stored or transmitted  
-- Evidence hashes stored on blockchain for integrity verification  
-- AI services process only the evidence content  
-- Admin dashboard access restricted to authorized users  
-
----
 
 ## API Scalability & Reliability
 
@@ -279,6 +253,26 @@ It promotes:
 - Safe reporting culture  
 
 ---
+
+## Demo
+### 1. Enter the Evidence
+   - **Action**: User uploads evidence (image, video, audio).
+   - <img src="3.jpg" width="300">
+
+### 2. Admin Login
+   - **Action**: Admin logs into the dashboard to review evidence.
+   - Password: admin123
+   - <img src="5.jpg" width="300">
+
+### 3. Process the Evidence Using AI Models and Accept/Reject it.
+   - **Action**: Admin uses AI to analyze the evidence for authenticity and accepts or rejects the evidence after reviewing the AI results.
+   - <img src="4.jpg" width="300">
+   - <img src="1.jpg" width="300">
+
+### 4. Check the Status
+   - **Action**: User or admin checks the status of the report.
+   - <img src="6.jpg" width="300">
+   
 
 ## Conclusion
 
