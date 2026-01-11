@@ -4,7 +4,8 @@ This module handles the verification of submitted evidence (images, videos, and 
 
 ## Flowchart
 <img src="https://mermaid.ink/img/pako:eNqNUtFSm0AU_ZU769i-JBpCQwMP7USSKBqTjKnOtMSHFS6EEXaZXYjamH_vwpLUOD7IA8O5e865d89lQwIeInFIlPKnYEVFAb-GSwbqGfi3ecppCKN1EiILENrgZTTG0zuF-T202z_gzJ8LzAUPUMo98V4b6PfxsVbBg6AsWOniWS12N57Uhz-3uu5W9dffKF9h6N-UDNyJN4drNWLamA5r5ch3eZaXBcIN0hTWEsb0EWERcIHygDnWNtMpDBHzqGINscCg4KLhjWve-d6x4t6hCJOggC_gchYd3GpU0y_8cSkTzmDC4yRojs71kQYXNfD8c2QoqPIdJ0yN2jg7cDMaTOAUFreLued6s9uFAuPB1eh9eHXYB-HpkKa8BUnxVWrCK1z6C5rlqeojaIZSLQvXKF6AFSuIqlJjfFnPdfUuXVBXGdFgpdUH1MmbBHVwH5KvavL1Psb6rD1RQ6S6T3Pz3XomNX_6Mf__Cnb065o-89_S9AqcakcSmSwl5CgOhppqlQazGsz9QRwLjOmup_qFZJnuG8313pZsv4FF8ZImLNZYKoAwgChJU-cosqOWLAR_ROfINM3mu_2UhMXK6ebPbzVeo7Ej69Oai12f6OHTmtmnNaRFYpGExClEiS2SochoBcmm8luSYoUZLomjPkMqHpdkybZKk1P2h_NsJxO8jFfEiWgqFSrzUCU7TGisst1XBbIQhctLVhCna_TN2oU4G_JMHMO0TmzDMI2uYZqW2fmuTl-I07NOej27b3yzbNO2uv3-tkX-1n07J3ana1k9q9exTdMwu_3tP-yudw8?type=png" width="800">
-
+  
+**AI Models** : [AI Model Demo](https://huggingface.co/spaces/ReaalSATYAM/DeepFakeDetector)
 ## Models Used
 
 ### 1. Image & Video Deepfake Detection
