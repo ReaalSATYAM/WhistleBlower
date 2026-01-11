@@ -53,7 +53,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             );
 
             addReportCard(
-                    "Fake Project Report",
+                    "Project Report",
                     "Project X does not exist on ground.",
                     "rejected"
             );
